@@ -2,6 +2,8 @@ version: '3.3'
 services:
   cowinmailer:
     container_name: cowinserver
+    environment:
+      - TZ=Asia/Kolkata
     volumes:
       - './:/usr/src/app'
     image: 'ankurpaul19/cowinmailer:latest'
