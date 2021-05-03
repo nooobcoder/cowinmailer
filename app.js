@@ -39,8 +39,10 @@ const mailSender = async () => {
     let d = new Date()
     let currentHour = d.getHours();
 
-    if (!(currentHour >= 1 && currentHour <= 7)) // Send ALEXA notification only during day time. 7 AM to 12:59 AM
+    if (currentHour >= 1 && currentHour <= 7) // Send ALEXA notification only during day time. 7 AM to 12:59 AM
     {
+        console.log(`IT IS NIGHT 😪 DID NOT SEND NOTIFICATION TO ALEXA!`)
+    } else {
         const districts = pinCodeToDistrict(dataPrepare.masterRecord);
         const totalDistricts = districts.length;
         let otherLocations = '';
@@ -56,8 +58,6 @@ const mailSender = async () => {
         }
         await sendAlexaNotification(otherLocations);
         console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
-    } else {
-        console.log(`IT IS NIGHT 😪 DID NOT SEND NOTIFICATION TO ALEXA!`)
     }
 
     let currentTime = d.toLocaleString('en-US', {timeZone: 'Asia/Kolkata'});
