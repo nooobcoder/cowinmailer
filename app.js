@@ -79,7 +79,6 @@ const mailSender = async () => {
 }
 
 const pinCodeToDistrict = (obj) => {
-    console.log(obj)
     const items = new Set(); // Set to avoid duplicate entries
     for (const area in obj)
         items.add(pincodeDirectory.lookup(area)[0].districtName);
@@ -90,7 +89,6 @@ const sendAlexaNotification = async (places) => {
 
     const token = process.env.ALEXA_TOKEN;
     const buildMessage = encodeURIComponent(`Vaccination available in ${places}. Check email for more information.`);
-    console.log(buildMessage);
     const apiUrl = `https://api.notifymyecho.com/v1/NotifyMe?notification=${buildMessage}&accessCode=${token}`;
     try {
         await axios.post(apiUrl);
@@ -99,9 +97,11 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const job = new CronJob('*/10 * * * *', async () => {
-    console.log('------- JOB STARTED (ITERATING IN 1 MINUTE) 🚀 ------- ')
+const minutes = 10;
+const job = new CronJob(`*/${10} * * * *`, async () => {
+    console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTES) 🚀 -------\n`)
     mailSender().catch(console.error);
+    console.log(`\n----------- JOB DONE ✅ -----------`)
 }, null, true, 'Asia/Kolkata');
 
 job.start();
