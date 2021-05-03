@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+  cowinmailer:
+    container_name: cowinserver
+    volumes:
+      - './:/usr/src/app'
+    image: 'ankurpaul19/cowinmailer:latest'
