@@ -58,7 +58,7 @@ const mailSender = async () => {
                 otherLocations = otherLocations.concat(`${shorten}, `);
             }
         }
-        // await sendAlexaNotification(otherLocations);
+        await sendAlexaNotification(otherLocations);
         console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
     }
 
