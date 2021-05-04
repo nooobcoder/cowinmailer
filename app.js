@@ -8,7 +8,6 @@ require('dotenv').config()
 const nodemailer = require("nodemailer");
 var pincodeDirectory = require('india-pincode-lookup');
 
-const dataPrepare = require('./dataPrepare');
 
 
 const mailSender = async () => {
@@ -23,6 +22,7 @@ const mailSender = async () => {
         }
     });
 
+    const dataPrepare = require('./dataPrepare');
     const mailBody = dataPrepare.masterRecord;
     console.log(mailBody);
 
