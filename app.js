@@ -6,7 +6,7 @@ const fs = require('fs');
 const axios = require('axios');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
-var pincodeDirectory = require('india-pincode-lookup');
+const pincodeDirectory = require('india-pincode-lookup');
 
 
 
@@ -23,12 +23,14 @@ const mailSender = async () => {
     });
 
     const dataPrepare = require('./dataPrepare');
-    const mailBody = dataPrepare.masterRecord;
-    console.log(mailBody);
+    const mailBody = await dataPrepare();
+    console.log('Mail Body',mailBody);
 
     if (Object.keys(mailBody).length === 0) {
         return;
     }
+    if (Object.keys(mailBody).length !== 0)
+        fs.writeFileSync('./output.json', JSON.stringify(mailBody), () => console.log('WRITTEN TO FILE'))
 
     const data = fs.readFileSync('./recipients.txt', 'utf8');
     if (data === '') {
@@ -56,7 +58,7 @@ const mailSender = async () => {
                 otherLocations = otherLocations.concat(`${shorten}, `);
             }
         }
-        await sendAlexaNotification(otherLocations);
+        // await sendAlexaNotification(otherLocations);
         console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
     }
 
@@ -68,6 +70,11 @@ const mailSender = async () => {
         text: JSON.stringify(mailBody, null, '\t'), // plain text body
 
         // html: "<h1>Hi!</h1>", // html body
+        attachments: [{
+            filename: 'Output.json',
+            path: './output.json',
+            contentType: 'application/json'
+        }]
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -97,7 +104,7 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const minutes = 5;
+const minutes = 30;
 const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);

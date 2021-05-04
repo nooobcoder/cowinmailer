@@ -7,24 +7,26 @@ const masterRecord = {};
 const apiFetch = async () => {
     try {
         const obj = new Date();
+        console.log('[API HIT]')
         console.log(`[ DATE API ] : ${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`)
         for (const pin of csvparsed) {
             const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`
             const {data} = await axios.get(apiEndpoint);
+            // console.log(data)
             const dataHolder = [];
-            for (const [index, {name, center_id, sessions}] of data.centers.entries()) {
+            for (const [index, {name, center_id, fee_type, sessions}] of data.centers.entries()) {
                 const info = [];
-                console.log(sessions)
+                // console.log(sessions)
 
-                for (const {available_capacity, date} of sessions) {
+                for (const {available_capacity, date, vaccine, min_age_limit} of sessions) {
                     if (available_capacity > 0) {
-                        info.push({name, date, available_capacity});
+                        info.push({name, date, min_age: min_age_limit, vaccine, available_capacity,});
                         // masterRecord.push({name, info: {date, available_capacity}});
                     }
                     // console.log(`AVAILABLE `, available_capacity, ' ON ', date)
                 }
                 if (info.length > 0)
-                    dataHolder.push({name, info})
+                    dataHolder.push({name, fee_type, info})
             }
             if (dataHolder.length > 0)
                 masterRecord[pin] = dataHolder
@@ -33,8 +35,8 @@ const apiFetch = async () => {
         // console.log(masterRecord)
     } catch (e) {
         console.error(e)
+        return {};
     }
 }
-apiFetch().then(r => {
-});
-module.exports = {masterRecord};
+
+module.exports = apiFetch;
