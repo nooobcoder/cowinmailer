@@ -6,8 +6,9 @@ const masterRecord = {};
 
 const apiFetch = async () => {
     try {
+        const obj = new Date();
         for (const pin of csvparsed) {
-            const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=03-05-2021`
+            const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`
             const {data} = await axios.get(apiEndpoint);
             // console.log(data)
             const dataHolder = [];
