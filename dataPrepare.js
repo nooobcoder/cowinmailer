@@ -1,8 +1,10 @@
 const csvparsed = require('./csvparser');
 
 const axios = require('axios')
+const pincodeDirectory = require('india-pincode-lookup');
 
 const masterRecord = {};
+const center_names = [];
 
 const apiFetch = async () => {
     try {
@@ -25,8 +27,10 @@ const apiFetch = async () => {
                     }
                     // console.log(`AVAILABLE `, available_capacity, ' ON ', date)
                 }
-                if (info.length > 0)
+                if (info.length > 0) {
                     dataHolder.push({name, fee_type, info})
+                    center_names.push(name.split(' ').slice(0, 2).join(' '))
+                }
             }
             if (dataHolder.length > 0)
                 masterRecord[pin] = dataHolder
@@ -39,4 +43,13 @@ const apiFetch = async () => {
     }
 }
 
-module.exports = apiFetch;
+const getCenterNames = () => {
+    console.log(center_names)
+    const items = new Set(); // Set to avoid duplicate entries
+    for (const area of center_names) {
+        items.add(area);
+    }
+    return [...items];
+};
+
+module.exports = {apiFetch, getCenterNames};

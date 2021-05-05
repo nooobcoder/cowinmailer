@@ -9,7 +9,6 @@ const nodemailer = require("nodemailer");
 const pincodeDirectory = require('india-pincode-lookup');
 
 
-
 const mailSender = async () => {
     let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -23,8 +22,8 @@ const mailSender = async () => {
     });
 
     const dataPrepare = require('./dataPrepare');
-    const mailBody = await dataPrepare();
-    console.log('Mail Body',mailBody);
+    const mailBody = await dataPrepare.apiFetch();
+    console.log('Mail Body', mailBody);
 
     if (Object.keys(mailBody).length === 0) {
         return;
@@ -45,7 +44,8 @@ const mailSender = async () => {
     {
         console.log(`IT IS NIGHT 😪 DID NOT SEND NOTIFICATION TO ALEXA!`)
     } else {
-        const districts = pinCodeToDistrict(dataPrepare.masterRecord);
+        const districts = dataPrepare.getCenterNames();
+        console.log(districts);
         const totalDistricts = districts.length;
         let otherLocations = '';
         // const
@@ -58,8 +58,10 @@ const mailSender = async () => {
                 otherLocations = otherLocations.concat(`${shorten}, `);
             }
         }
-        await sendAlexaNotification(otherLocations);
-        console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
+        if (otherLocations.length > 0) {
+            await sendAlexaNotification(otherLocations);
+            console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
+        }
     }
 
     let currentTime = d.toLocaleString('en-US', {timeZone: 'Asia/Kolkata'});
@@ -104,7 +106,7 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const minutes = 30;
+const minutes = 15;
 const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);
