@@ -44,7 +44,6 @@ const apiFetch = async () => {
 }
 
 const getCenterNames = () => {
-    console.log(center_names)
     const items = new Set(); // Set to avoid duplicate entries
     for (const area of center_names) {
         items.add(area);

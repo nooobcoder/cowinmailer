@@ -6,7 +6,6 @@ const fs = require('fs');
 const axios = require('axios');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
-const pincodeDirectory = require('india-pincode-lookup');
 
 
 const mailSender = async () => {
@@ -38,30 +37,6 @@ const mailSender = async () => {
     }
     // send mail with defined transport object
     let d = new Date()
-    let currentHour = d.getHours();
-
-    if (currentHour >= 1 && currentHour <= 7) // Send ALEXA notification only during day time. 7 AM to 12:59 AM
-    {
-        console.log(`IT IS NIGHT 😪 DID NOT SEND NOTIFICATION TO ALEXA!`)
-    } else {
-        const districts = dataPrepare.getCenterNames();
-        const totalDistricts = districts.length;
-        let otherLocations = '';
-        // const
-        for (const [index, district] of districts.entries()) {
-            const shorten = district.split(" ")[0];
-            if (totalDistricts > 3 && index >= 3) {
-                otherLocations = otherLocations.concat(' and few other locations.');
-                break;
-            } else {
-                otherLocations = otherLocations.concat(`${shorten}, `);
-            }
-        }
-        if (otherLocations.length > 0) {
-            await sendAlexaNotification(otherLocations);
-            console.log(`SENT NOTIFICATION TO REGISTERED ALEXA DEVICE!`)
-        }
-    }
 
     let currentTime = d.toLocaleString('en-US', {timeZone: 'Asia/Kolkata'});
     let info = await transporter.sendMail({
@@ -86,26 +61,7 @@ const mailSender = async () => {
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
-const pinCodeToDistrict = (obj) => {
-    const items = new Set(); // Set to avoid duplicate entries
-    for (const area in obj)
-        items.add(pincodeDirectory.lookup(area)[0].districtName);
-    return [...items];
-}
-
-const sendAlexaNotification = async (places) => {
-
-    const token = process.env.ALEXA_TOKEN;
-    const buildMessage = encodeURIComponent(`Vaccination available in ${places}. Check email for more information.`);
-    const apiUrl = `https://api.notifymyecho.com/v1/NotifyMe?notification=${buildMessage}&accessCode=${token}`;
-    try {
-        await axios.post(apiUrl);
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-const minutes = 15;
+const minutes = 30;
 const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);
