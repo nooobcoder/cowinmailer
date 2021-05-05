@@ -8,12 +8,13 @@ const center_names = [];
 
 const apiFetch = async () => {
     try {
-        /*let config = {
-            headers: {
-                "Accept-Language": "en_US",
-                "accept": "application/json",
+        let config = {
+             method: 'get',
+             headers: {
+            'accept': 'application/json',
+            'Accept-Language': 'hi_IN'
             }
-        }*/
+        }
 
         const obj = new Date();
         console.log('[API HIT]')
