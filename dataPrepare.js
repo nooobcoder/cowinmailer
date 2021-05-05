@@ -8,13 +8,21 @@ const center_names = [];
 
 const apiFetch = async () => {
     try {
+        /*let config = {
+            headers: {
+                "Accept-Language": "en_US",
+                "accept": "application/json",
+            }
+        }*/
+
         const obj = new Date();
         console.log('[API HIT]')
         console.log(`[ DATE API ] : ${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`)
         for (const pin of csvparsed) {
             const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`
             const {data} = await axios.get(apiEndpoint);
-            // console.log(data)
+
+            console.log(data)
             const dataHolder = [];
             for (const [index, {name, center_id, fee_type, sessions}] of data.centers.entries()) {
                 const info = [];

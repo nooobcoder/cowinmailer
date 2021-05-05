@@ -7,6 +7,7 @@ const axios = require('axios');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
 const pincodeDirectory = require('india-pincode-lookup');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 
 const mailSender = async () => {
@@ -28,8 +29,10 @@ const mailSender = async () => {
     if (Object.keys(mailBody).length === 0) {
         return;
     }
-    if (Object.keys(mailBody).length !== 0)
-        fs.writeFileSync('./output.json', JSON.stringify(mailBody), () => console.log('WRITTEN TO FILE'))
+    if (Object.keys(mailBody).length !== 0) {
+        fs.writeFile('./output.json', JSON.stringify(mailBody), () => console.log('WRITTEN TO FILE'))
+        await writeDataToCSV(mailBody);
+    }
 
     const data = fs.readFileSync('./recipients.txt', 'utf8');
     if (data === '') {
@@ -72,9 +75,10 @@ const mailSender = async () => {
 
         // html: "<h1>Hi!</h1>", // html body
         attachments: [{
-            filename: 'Output.json',
-            path: './output.json',
-            contentType: 'application/json'
+            filename: 'Vaccine Information.csv',
+            path: './output.csv',
+            contentType: 'application/vnd.ms-excel'
+            // contentType: 'application/json'
         }]
     });
 
@@ -93,6 +97,37 @@ const pinCodeToDistrict = (obj) => {
     return [...items];
 }
 
+const writeDataToCSV=async (mailBody)=>{
+    const csvWriter = createCsvWriter({
+        append:false,
+        path: './output.csv',
+        header: [
+            {id: 'pincode', title: 'PIN'},
+            {id: 'date', title: 'DATE'},
+            {id: 'name', title: 'CENTER NAME'},
+            {id: 'vacancy', title: 'VACANCY'},
+            {id: 'min_age', title: 'MINIMUM AGE'},
+            {id: 'vaccine', title: 'VACCINE'},
+            {id: 'fee', title: 'FEE TYPE'},
+        ]
+    });
+
+    const records = [];
+    for (const pin in mailBody) {
+        for (const {info, name, fee_type} of mailBody[pin]) {
+            for (const {date, min_age, vaccine, available_capacity} of info) {
+                records.push({pincode: pin, date, name, vacancy: available_capacity, min_age, vaccine, fee: fee_type})
+                console.log(pin, date, name, available_capacity, min_age, vaccine, fee_type);
+            }
+        }
+    }
+
+    csvWriter.writeRecords(records)       // returns a promise
+        .then(() => {
+            console.log('[ WRITTEN CSV FILE ]');
+        });
+}
+
 const sendAlexaNotification = async (places) => {
 
     const token = process.env.ALEXA_TOKEN;
@@ -105,7 +140,7 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const minutes = 15;
+const minutes = 30;
 const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);
