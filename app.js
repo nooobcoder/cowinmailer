@@ -6,7 +6,6 @@ const fs = require('fs');
 const axios = require('axios');
 require('dotenv').config()
 const nodemailer = require("nodemailer");
-const pincodeDirectory = require('india-pincode-lookup');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 
@@ -71,13 +70,12 @@ const mailSender = async () => {
         from: '"Suryashi IT 🖥" <suryashi2013@gmail.com>', // sender address
         to: `${data.toString()}`, // list of receivers
         subject: `💉 CoWin Vaccines Available - ${currentTime}`, // Subject line
-        text: JSON.stringify(mailBody, null, '\t'), // plain text body
-
-        // html: "<h1>Hi!</h1>", // html body
+        // text: JSON.stringify(mailBody, null, '\t'), // plain text body
+        html: "<h1>Hi, Vaccines are available in your area 🚑. Please check the attachment 🖇 to this email for more information!</h1>", // html body
         attachments: [{
             filename: 'Vaccine Information.csv',
             path: './output.csv',
-            contentType: 'application/vnd.ms-excel'
+            contentType: 'application/vnd.ms-excel',
             // contentType: 'application/json'
         }]
     });
@@ -140,7 +138,7 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const minutes = 1;
+const minutes = 30;
 const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);

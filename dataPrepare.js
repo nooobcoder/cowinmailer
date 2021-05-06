@@ -1,7 +1,8 @@
 const csvparsed = require('./csvparser');
 
 const axios = require('axios')
-const pincodeDirectory = require('india-pincode-lookup');
+const UserAgent = require('user-agents');  // DOCS: https://www.npmjs.com/package/user-agents
+
 
 const masterRecord = {};
 const center_names = [];
@@ -9,19 +10,24 @@ const center_names = [];
 const apiFetch = async () => {
     try {
         let config = {
-             method: 'get',
-             headers: {
-            'accept': 'application/json',
-            'Accept-Language': 'hi_IN'
+            method: 'get',
+            headers: {
+                'accept': 'application/json',
+                'Accept-Language': 'hi_IN'
             }
         }
+
+        // UPDATE: The new CoWin API requires a User-Agent parameter to be passed everytime.
+        // Generating random user agents
 
         const obj = new Date();
         console.log('[API HIT]')
         console.log(`[ DATE API ] : ${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`)
         for (const pin of csvparsed) {
+            const userAgent = new UserAgent({deviceCategory:'mobile'});  // Generating user agents for mobile devices only to prevent blocking
+            config.headers['User-Agent'] = userAgent.data.userAgent;
             const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`
-            const {data} = await axios.get(apiEndpoint);
+            const {data} = await axios.get(apiEndpoint,config);
 
             console.log(data)
             const dataHolder = [];
