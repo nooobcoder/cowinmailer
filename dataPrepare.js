@@ -21,15 +21,22 @@ const apiFetch = async () => {
         // Generating random user agents
 
         const obj = new Date();
+        let MyDateString;
+
+        obj.setDate(obj.getDate());
+
+        MyDateString = ('0' + obj.getDate()).slice(-2) + '-' + ('0' + (obj.getMonth()+1)).slice(-2) + '-' + obj.getFullYear();
+
         console.log('[API HIT]')
-        console.log(`[ DATE API ] : ${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`)
+        console.log(`[ DATE API ] : ${MyDateString}`)
         for (const pin of csvparsed) {
-            const userAgent = new UserAgent({deviceCategory:'mobile'});  // Generating user agents for mobile devices only to prevent blocking
+            const userAgent = new UserAgent();  // Generating user agents for mobile devices only to prevent blocking
+            // const userAgent = new UserAgent({deviceCategory:'mobile'});  // Generating user agents for mobile devices only to prevent blocking
             config.headers['User-Agent'] = userAgent.data.userAgent;
-            const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${obj.getDate()}-${obj.getMonth() + 1}-${obj.getFullYear()}`
+            const apiEndpoint = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=${pin}&date=${MyDateString}`
             const {data} = await axios.get(apiEndpoint,config);
 
-            console.log(data)
+            // console.log(data)
             const dataHolder = [];
             for (const [index, {name, center_id, fee_type, sessions}] of data.centers.entries()) {
                 const info = [];
