@@ -183,7 +183,7 @@ const sendAlexaNotification = async (places) => {
 }
 
 const minutes = 20;
-const job = new CronJob(`*/${minutes} * * * * *`, async () => {
+const job = new CronJob(`*/${minutes} * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);
     console.log(`\n----------- JOB DONE ✅ -----------`)
