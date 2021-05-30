@@ -51,7 +51,7 @@ const mailSender = async () => {
         let otherLocations = '';
         // const
         for (const [index, district] of districts.entries()) {
-            const shorten = district.split(" ")[0];
+            const shorten = district.split(" ")[0] + district.split(" ")[1]; // Taking first two words
             if (totalDistricts > 3 && index >= 3) {
                 otherLocations = otherLocations.concat(' and few other locations.');
                 break;
@@ -65,7 +65,9 @@ const mailSender = async () => {
         }
     }
 
-    let currentTime = d.toLocaleString('en-US', {timeZone: 'Asia/Kolkata'});
+    let currentTime = d.toLocaleString('en-US', {
+        timeZone: 'Asia/Kolkata'
+    });
     let info = await transporter.sendMail({
         from: '"Suryashi IT 🖥" <suryashi2013@gmail.com>', // sender address
         to: `${data.toString()}`, // list of receivers
@@ -95,32 +97,74 @@ const pinCodeToDistrict = (obj) => {
     return [...items];
 }
 
-const writeDataToCSV=async (mailBody)=>{
+const writeDataToCSV = async (mailBody) => {
     const csvWriter = createCsvWriter({
-        append:false,
+        append: false,
         path: './output.csv',
-        header: [
-            {id: 'pincode', title: 'PIN'},
-            {id: 'date', title: 'DATE'},
-            {id: 'name', title: 'CENTER NAME'},
-            {id: 'vacancy', title: 'VACANCY'},
-            {id: 'min_age', title: 'MINIMUM AGE'},
-            {id: 'vaccine', title: 'VACCINE'},
-            {id: 'fee', title: 'FEE TYPE'},
-        ]
+        header: [{
+            id: 'pincode',
+            title: 'PIN'
+        }, {
+            id: 'date',
+            title: 'DATE'
+        }, {
+            id: 'name',
+            title: 'CENTER NAME'
+        }, {
+            id: 'vacancy',
+            title: 'VACANCY'
+        }, {
+            id: 'vacancydose1',
+            title: 'VACANCY DOSE 1'
+        }, {
+            id: 'vacancydose2',
+            title: 'VACANCY DOSE 2'
+        }, {
+            id: 'min_age',
+            title: 'MINIMUM AGE'
+        }, {
+            id: 'vaccine',
+            title: 'VACCINE'
+        }, {
+            id: 'fee',
+            title: 'FEE TYPE'
+        },]
     });
 
     const records = [];
     for (const pin in mailBody) {
-        for (const {info, name, fee_type} of mailBody[pin]) {
-            for (const {date, min_age, vaccine, available_capacity} of info) {
-                records.push({pincode: pin, date, name, vacancy: available_capacity, min_age, vaccine, fee: fee_type})
-                console.log(pin, date, name, available_capacity, min_age, vaccine, fee_type);
+        for (const {
+            info,
+            name,
+            fee_type
+        }
+            of mailBody[pin]) {
+            for (const {
+                date,
+                min_age,
+                vaccine,
+                available_capacity,
+                available_capacity_dose1,
+                available_capacity_dose2
+            }
+                of info) {
+                records.push({
+                    pincode: pin,
+                    date,
+                    name,
+                    vacancy: available_capacity,
+                    vacancydose1: available_capacity_dose1,
+                    vacancydose2: available_capacity_dose2,
+                    min_age,
+                    vaccine,
+                    fee: fee_type
+                })
+                console.log(pin, date, name, available_capacity, available_capacity_dose1, available_capacity_dose2, min_age, vaccine, fee_type);
             }
         }
     }
 
-    csvWriter.writeRecords(records)       // returns a promise
+    csvWriter.writeRecords(records) // returns a promise
         .then(() => {
             console.log('[ WRITTEN CSV FILE ]');
         });
@@ -138,7 +182,7 @@ const sendAlexaNotification = async (places) => {
     }
 }
 
-const minutes = 40;
+const minutes = 20;
 const job = new CronJob(`*/${minutes} * * * * *`, async () => {
     console.log(`------- JOB STARTED (ITERATING IN ${minutes} MINUTE(S)) 🚀 -------\n`)
     await mailSender().catch(console.error);
